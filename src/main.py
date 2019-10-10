@@ -2,7 +2,7 @@ from core import Instagram
 import json
 
 if __name__ == "__main__":
-    instagram = Instagram("danbailo1")
+    instagram = Instagram("danbailocodes")
 
     print(instagram.username)
     print(instagram.id_user)

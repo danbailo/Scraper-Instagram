@@ -37,7 +37,8 @@ class Instagram:
             node = self.__instagram["edge_owner_to_timeline_media"]["edges"][i]["node"]
             link_img = node["display_url"]
             id_img = node["id"]
-            links_imgs.append((id_img,link_img))
+            # links_imgs.append((id_img,link_img))
+            links_imgs.append(link_img)
 
         response = self.get_next_page(self.get_end_cursor())
         while True:
@@ -48,15 +49,16 @@ class Instagram:
                     link_img = node["display_url"]
                     id_img = node["id"]
                 except IndexError: break
-                links_imgs.append((id_img, link_img))
+                # links_imgs.append((id_img, link_img))
+                links_imgs.append(link_img)
             if page_info["has_next_page"]: response = self.get_next_page(page_info["end_cursor"])
             else: break
         return links_imgs
     
     def write_links(self):
         with open('links.txt','w') as file:
-            for id_img,link_img in self.get_imgs_links():
-                file.write(id_img +', ' +link_img +"\n")
+            for link_img in self.get_imgs_links():
+                file.write(link_img +"\n")
     
     def download_imgs(self):
         with open('links.txt','r') as file:
