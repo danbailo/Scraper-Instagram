@@ -1,4 +1,6 @@
+from PIL import Image
 import requests
+import io
 
 class Instagram:
 
@@ -35,25 +37,37 @@ class Instagram:
             node = self.__instagram["edge_owner_to_timeline_media"]["edges"][i]["node"]
             link_img = node["display_url"]
             id_img = node["id"]
-            # links_imgs.append((id_img, link_img))
-            links_imgs.append(link_img)
+            links_imgs.append((id_img,link_img))
 
         response = self.get_next_page(self.get_end_cursor())
         while True:
-            about = response["data"]["user"]["edge_owner_to_timeline_media"]
-            i=0
-            while i < 12:
+            for i in range(self.FIRST):
+                page_info = response["data"]["user"]["edge_owner_to_timeline_media"]["page_info"]
                 try:
-                    link_img = about["edges"][i]["node"]["display_url"]
-                    id_img = about["edges"][i]["node"]["id"]
+                    node = response["data"]["user"]["edge_owner_to_timeline_media"]["edges"][i]["node"]
+                    link_img = node["display_url"]
+                    id_img = node["id"]
                 except IndexError: break
-                # links_imgs.append((id_img,link_img))
-                links_imgs.append(link_img)
-                i += 1
-            if about["page_info"]["has_next_page"]:        
-                response = self.get_next_page(about["page_info"]["end_cursor"])
+                links_imgs.append((id_img, link_img))
+            if page_info["has_next_page"]: response = self.get_next_page(page_info["end_cursor"])
             else: break
         return links_imgs
-        
+    
+    def write_links(self):
+        with open('links.txt','w') as file:
+            for id_img,link_img in self.get_imgs_links():
+                file.write(id_img +', ' +link_img +"\n")
+    
+    def download_imgs(self):
+        with open('links.txt','r') as file:
+            i = 0
+            for line in file:
+                response = requests.get(line)
+                img = Image.open(io.BytesIO(response.content))
+                img.save("../imgs/"+str(i)+".png")
+                i += 1
+
+
+
 
 
