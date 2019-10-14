@@ -16,8 +16,11 @@ class Instagram:
         self.__instagram = self.__instagram["graphql"]["user"]
         self.id_user = self.__instagram["id"]
 
-    def get_end_cursor(self):
-        page_info = self.__instagram["edge_owner_to_timeline_media"]["page_info"]
+    def get_root(self):
+        return self.__instagram
+
+    def get_root_cursor(self, node):
+        page_info = node["edge_owner_to_timeline_media"]["page_info"]
         if page_info["has_next_page"]:
             return page_info['end_cursor']
 
@@ -40,14 +43,17 @@ class Instagram:
             # links_imgs.append((id_img,link_img))
             links_imgs.append(link_img)
 
-        response = self.get_next_page(self.get_end_cursor())
+        response = self.get_next_page(self.get_root_cursor(self.get_root()))
         while True:
-            for i in range(self.FIRST):
+            i = 0
+            while i < 12:
                 page_info = response["data"]["user"]["edge_owner_to_timeline_media"]["page_info"]
                 try:
                     node = response["data"]["user"]["edge_owner_to_timeline_media"]["edges"][i]["node"]
                     link_img = node["display_url"]
                     id_img = node["id"]
+                    # post_with_imgs = node["edge_media_to_comment"]["page_info"] #verificar posts com mais de uma img
+                    i += 1
                 except IndexError: break
                 # links_imgs.append((id_img, link_img))
                 links_imgs.append(link_img)
